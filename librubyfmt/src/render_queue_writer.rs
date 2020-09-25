@@ -50,8 +50,12 @@ impl RenderQueueWriter {
             }
 
             if accum.len() >= 4 {
-                if let (&LineToken::End, &LineToken::HardNewLine, &LineToken::Indent { .. }, x) =
-                    accum.last_4().expect("we checked length")
+                if let (
+                    &LineToken::ConcreteLineToken(ConcreteLineToken::End),
+                    &LineToken::ConcreteLineToken(ConcreteLineToken::HardNewLine),
+                    &LineToken::ConcreteLineToken(ConcreteLineToken::Indent { .. }),
+                    x,
+                ) = accum.last_4().expect("we checked length")
                 {
                     if x.is_in_need_of_a_trailing_blankline() {
                         accum.insert_trailing_blankline(BlanklineReason::ComesAfterEnd);
@@ -84,7 +88,10 @@ impl RenderQueueWriter {
 
         let len = tokens.len();
         let delete = match (tokens.get(len - 2), tokens.get(len - 1)) {
-            (Some(LineToken::HardNewLine), Some(LineToken::HardNewLine)) => true,
+            (
+                Some(LineToken::ConcreteLineToken(ConcreteLineToken::HardNewLine)),
+                Some(LineToken::ConcreteLineToken(ConcreteLineToken::HardNewLine)),
+            ) => true,
             _ => false,
         };
         if delete {
